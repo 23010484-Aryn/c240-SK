@@ -9,7 +9,14 @@
             --primary-color: #e51b23;
             --secondary-color: #000080;
             --background-color: #f5f5f5;
-            --text-color: #333;
+            --te            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Sorry, there was an error processing your request.');
+            } finally {
+                sendButton.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }olor: #333;
         }
 
         * {
@@ -325,6 +332,8 @@
 
             messageInput.value = '';
             addMessage(message, true);
+            sendButton.disabled = true;
+            messageInput.disabled = true;
 
             try {
                 const enhancedMessage = enhanceQuestion(message);
@@ -341,7 +350,20 @@
                 }
 
                 const data = await response.json();
-                const cleanedResponse = cleanResponse(data);
+                console.log('Raw response:', data); // For debugging
+
+                // Extract the actual response text from the JSON
+                let responseText = '';
+                if (typeof data === 'object') {
+                    // Try different possible JSON structures
+                    responseText = data.response || data.answer || data.text || data.message || 
+                                 (data.choices && data.choices[0]?.text) ||
+                                 JSON.stringify(data);
+                } else {
+                    responseText = String(data);
+                }
+
+                const cleanedResponse = cleanResponse(responseText);
                 addMessage(cleanedResponse);
             } catch (error) {
                 console.error('Error:', error);
