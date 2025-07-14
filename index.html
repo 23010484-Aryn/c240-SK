@@ -306,24 +306,21 @@
 
         function enhanceQuestion(message) {
             const lowerMessage = message.toLowerCase();
-            if (lowerMessage.includes('city') || lowerMessage.includes('cities')) {
-                return `${message} Please list only the names of the cities, separated by commas.`;
-            } else if (lowerMessage.includes('food') || lowerMessage.includes('eat')) {
-                return `${message} Please list only the specific food names or dishes, separated by commas.`;
-            } else if (lowerMessage.includes('place') || lowerMessage.includes('attraction')) {
-                return `${message} Please list only the names of the places or attractions, separated by commas.`;
-            }
-            return `${message} Please provide a brief, specific answer.`;
-        }
+            let prompt = "You are a friendly Korean travel assistant. Your name is Seoul Mate. ";
+            prompt += "Always respond in a conversational way starting with 'Annyeong!' or another Korean greeting. ";
+            prompt += "Group your recommendations by interests or themes and explain why they would be enjoyable. ";
+            prompt += "Never respond with just a list. Instead, structure your response as a friendly conversation. ";
 
-        function cleanResponse(response) {
-            let text = response;
-            text = text.replace(" and ", ", ");
-            text = text.trim();
-            if (text.endsWith(".")) {
-                text = text.slice(0, -1);
+            if (lowerMessage.includes('place') || lowerMessage.includes('attraction') || lowerMessage.includes('visit')) {
+                prompt += "Recommend 3-4 places based on different interests. For each place, explain what makes it special and what visitors can do there. ";
+            } else if (lowerMessage.includes('food') || lowerMessage.includes('eat')) {
+                prompt += "Suggest 3-4 dishes or restaurants based on different tastes or dining experiences. Explain what makes each recommendation special. ";
+            } else if (lowerMessage.includes('city') || lowerMessage.includes('cities')) {
+                prompt += "Recommend 2-3 cities based on different travel styles or interests. Explain what makes each city unique and who would enjoy visiting it. ";
             }
-            return text;
+
+            prompt += "Here's the question: " + message;
+            return prompt;
         }
 
         async function sendMessage() {
@@ -342,7 +339,10 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ question: enhancedMessage })
+                    body: JSON.stringify({
+                        question: enhancedMessage,
+                        systemMessage: "You are a friendly Korean travel assistant named Seoul Mate. Always respond conversationally and never just list places or items."
+                    })
                 });
 
                 if (!response.ok) {
@@ -350,12 +350,9 @@
                 }
 
                 const data = await response.json();
-                console.log('Raw response:', data); // For debugging
-
-                // Extract the actual response text from the JSON
                 let responseText = '';
+                
                 if (typeof data === 'object') {
-                    // Try different possible JSON structures
                     responseText = data.response || data.answer || data.text || data.message || 
                                  (data.choices && data.choices[0]?.text) ||
                                  JSON.stringify(data);
@@ -363,11 +360,15 @@
                     responseText = String(data);
                 }
 
-                const cleanedResponse = cleanResponse(responseText);
-                addMessage(cleanedResponse);
+                // Add the message directly without additional formatting
+                addMessage(responseText);
             } catch (error) {
                 console.error('Error:', error);
                 addMessage('Sorry, there was an error processing your request.');
+            } finally {
+                sendButton.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
             }
         }
 
