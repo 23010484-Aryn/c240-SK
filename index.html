@@ -304,25 +304,6 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function enhanceQuestion(message) {
-            const lowerMessage = message.toLowerCase();
-            let prompt = "You are a friendly Korean travel assistant. Your name is Seoul Mate. ";
-            prompt += "Always respond in a conversational way starting with 'Annyeong!' or another Korean greeting. ";
-            prompt += "Group your recommendations by interests or themes and explain why they would be enjoyable. ";
-            prompt += "Never respond with just a list. Instead, structure your response as a friendly conversation. ";
-
-            if (lowerMessage.includes('place') || lowerMessage.includes('attraction') || lowerMessage.includes('visit')) {
-                prompt += "Recommend 3-4 places based on different interests. For each place, explain what makes it special and what visitors can do there. ";
-            } else if (lowerMessage.includes('food') || lowerMessage.includes('eat')) {
-                prompt += "Suggest 3-4 dishes or restaurants based on different tastes or dining experiences. Explain what makes each recommendation special. ";
-            } else if (lowerMessage.includes('city') || lowerMessage.includes('cities')) {
-                prompt += "Recommend 2-3 cities based on different travel styles or interests. Explain what makes each city unique and who would enjoy visiting it. ";
-            }
-
-            prompt += "Here's the question: " + message;
-            return prompt;
-        }
-
         async function sendMessage() {
             const message = messageInput.value.trim();
             if (!message) return;
@@ -333,15 +314,14 @@
             messageInput.disabled = true;
 
             try {
-                const enhancedMessage = enhanceQuestion(message);
                 const response = await fetch(FLOWISE_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        question: enhancedMessage,
-                        systemMessage: "You are a friendly Korean travel assistant named Seoul Mate. Always respond conversationally and never just list places or items."
+                        question: message,
+                        systemMessage: "You are a friendly Korean travel assistant named Seoul Mate. Respond in a conversational way, starting with 'Annyeong!' or another Korean greeting. Give detailed explanations and recommendations based on different interests. Never just list places or items."
                     })
                 });
 
