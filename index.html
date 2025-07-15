@@ -9,14 +9,7 @@
             --primary-color: #e51b23;
             --secondary-color: #000080;
             --background-color: #f5f5f5;
-            --te            } catch (error) {
-                console.error('Error:', error);
-                addMessage('Sorry, there was an error processing your request.');
-            } finally {
-                sendButton.disabled = false;
-                messageInput.disabled = false;
-                messageInput.focus();
-            }olor: #333;
+            --text-color: #333;
         }
 
         * {
@@ -71,7 +64,7 @@
             margin-left: auto;
             margin-right: auto;
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1.2fr;
             gap: 2rem;
         }
 
@@ -133,20 +126,33 @@
         .chat-container {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             position: sticky;
             top: 120px;
             height: calc(100vh - 140px);
             display: flex;
             flex-direction: column;
+            border: 2px solid var(--primary-color);
         }
 
         .chat-header {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), #ff4757);
             color: white;
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
             border-radius: 10px 10px 0 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .chat-header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
         }
 
         #chatMessages {
@@ -161,6 +167,26 @@
             border-radius: 8px;
             max-width: 80%;
             word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .message strong {
+            font-weight: bold;
+            color: inherit;
+        }
+
+        .message em {
+            font-style: italic;
+            color: inherit;
+        }
+
+        .message ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .message li {
+            margin-bottom: 0.3rem;
         }
 
         .user-message {
@@ -170,8 +196,29 @@
         }
 
         .bot-message {
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             margin-right: auto;
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+        }
+
+        .bot-message::before {
+            content: "🤖";
+            position: absolute;
+            left: -2px;
+            top: -2px;
+            font-size: 1.2rem;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 1rem;
+            font-style: italic;
+            color: #666;
+        }
+
+        .typing-indicator.show {
+            display: block;
         }
 
         .input-container {
@@ -191,16 +238,25 @@
 
         #sendButton {
             padding: 0.8rem 1.5rem;
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), #ff4757);
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
+            font-weight: bold;
         }
 
         #sendButton:hover {
-            background-color: #c41118;
+            background: linear-gradient(135deg, #c41118, #e51b23);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 27, 35, 0.3);
+        }
+
+        #sendButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         footer {
@@ -214,6 +270,14 @@
         @media (max-width: 768px) {
             main {
                 grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .chat-container {
+                order: -1;
+                position: relative;
+                height: 400px;
+                margin-bottom: 1rem;
             }
 
             .destinations {
@@ -225,6 +289,14 @@
                 text-align: center;
                 gap: 1rem;
             }
+
+            .chat-header h2 {
+                font-size: 1.1rem;
+            }
+
+            .chat-header p {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -233,14 +305,14 @@
         <h1>South Korea Travel Guide</h1>
     </header>
 
-    <nav>
+    <!-- <nav>
         <ul>
             <li><a href="#destinations">Destinations</a></li>
             <li><a href="#culture">Culture</a></li>
             <li><a href="#food">Food</a></li>
             <li><a href="#transportation">Transportation</a></li>
         </ul>
-    </nav>
+    </nav> -->
 
     <main>
         <div class="content">
@@ -259,7 +331,7 @@
                         <h3>Seoul</h3>
                     </div>
                     <div class="destination-card">
-                        <img src="https://images.unsplash.com/photo-1578653882317-351d714efde6" alt="Busan">
+                        <img src="https://cdn-ksvod.kyivstar.ua/content/HLS/VOD/IMAGE2/61f8525ad294dae646c1c881/IMAGE_16_9_XL.jpg" alt="Busan">
                         <h3>Busan</h3>
                     </div>
                     <div class="destination-card">
@@ -276,9 +348,12 @@
 
         <aside class="chat-container">
             <div class="chat-header">
-                <h2>Travel Assistant</h2>
+                <h2>🇰🇷 Seoul Mate - Your Korean Travel Assistant</h2>
+                <p>Ask me anything about traveling in South Korea!</p>
             </div>
-            <div id="chatMessages"></div>
+            <div id="chatMessages">
+                <div class="typing-indicator" id="typingIndicator">Seoul Mate is typing...</div>
+            </div>
             <div class="input-container">
                 <input type="text" id="messageInput" placeholder="Ask about traveling in South Korea..." autocomplete="off">
                 <button id="sendButton">Send</button>
@@ -295,13 +370,53 @@
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
 
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = content;
+            
+            if (isUser) {
+                // For user messages, keep plain text
+                messageDiv.textContent = content;
+            } else {
+                // For bot messages, parse markdown formatting
+                const formattedContent = parseMarkdown(content);
+                messageDiv.innerHTML = formattedContent;
+            }
+            
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function parseMarkdown(text) {
+            // Convert **text** to <strong>text</strong>
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert *text* to <em>text</em>
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Convert line breaks to <br>
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            // Convert bullet points (lines starting with - or *)
+            formatted = formatted.replace(/^[-*]\s+(.+)/gm, '<li>$1</li>');
+            
+            // Wrap consecutive <li> elements in <ul>
+            formatted = formatted.replace(/(<li>.*?<\/li>)(\s*<li>.*?<\/li>)*/g, function(match) {
+                return '<ul>' + match + '</ul>';
+            });
+            
+            return formatted;
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.classList.add('show');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.classList.remove('show');
         }
 
         async function sendMessage() {
@@ -312,6 +427,9 @@
             addMessage(message, true);
             sendButton.disabled = true;
             messageInput.disabled = true;
+            sendButton.textContent = 'Sending...';
+            
+            showTypingIndicator();
 
             try {
                 const response = await fetch(FLOWISE_API_URL, {
@@ -321,12 +439,12 @@
                     },
                     body: JSON.stringify({
                         question: message,
-                        systemMessage: "You are a friendly Korean travel assistant named Seoul Mate. Respond in a conversational way, starting with 'Annyeong!' or another Korean greeting. Give detailed explanations and recommendations based on different interests. Never just list places or items."
+                        systemMessage: "You are Seoul Mate, a friendly and knowledgeable Korean travel assistant. Always greet users warmly with 'Annyeong!' or other Korean greetings. Provide detailed, helpful travel advice about South Korea including cultural tips, food recommendations, transportation, attractions, and local customs. Be conversational and enthusiastic about Korean culture. Include practical information like costs, opening hours, and insider tips when relevant."
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -335,19 +453,21 @@
                 if (typeof data === 'object') {
                     responseText = data.response || data.answer || data.text || data.message || 
                                  (data.choices && data.choices[0]?.text) ||
-                                 JSON.stringify(data);
+                                 'I received your message but had trouble understanding the response format.';
                 } else {
                     responseText = String(data);
                 }
 
-                // Add the message directly without additional formatting
+                hideTypingIndicator();
                 addMessage(responseText);
             } catch (error) {
                 console.error('Error:', error);
-                addMessage('Sorry, there was an error processing your request.');
+                hideTypingIndicator();
+                addMessage('Annyeong! I apologize, but I\'m having trouble connecting right now. Please try again in a moment. 죄송합니다! (I\'m sorry!)');
             } finally {
                 sendButton.disabled = false;
                 messageInput.disabled = false;
+                sendButton.textContent = 'Send';
                 messageInput.focus();
             }
         }
@@ -361,7 +481,7 @@
         });
 
         // Add welcome message
-        addMessage('Welcome to the South Korea Travel Guide! How can I help you plan your trip?');
+        addMessage('Annyeong! 안녕하세요! I\'m Seoul Mate, your friendly Korean travel assistant! 🇰🇷 I\'m here to help you discover the best of South Korea - from bustling Seoul to beautiful Jeju Island, delicious Korean food, cultural experiences, and practical travel tips. What would you like to know about traveling in Korea?');
 
         // Add click handlers for destination cards
         document.querySelectorAll('.destination-card').forEach(card => {
